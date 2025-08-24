@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Système d'Enquête Policière - PROLOG</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .investigation-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 1.1rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            min-height: 200px;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .result-card.guilty {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        }
+
+        .result-card.innocent {
+            background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+        }
+
+        .result-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .evidence-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+
+        .evidence-list li {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid rgba(255,255,255,0.5);
+        }
+
+        .suspects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .suspect-card {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .suspect-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .suspect-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #667eea;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+
+        .error {
+            background: #fff5f5;
+            border: 1px solid #feb2b2;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .investigation-panel, .results-section {
+                padding: 20px;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕵️ Système d'Enquête Policière</h1>
+            <p>Système intelligent basé sur PROLOG pour l'investigation criminelle</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('individual')">Enquête Individuelle</div>
+            <div class="tab" onclick="switchTab('overview')">Vue d'Ensemble</div>
+        </div>
+
+        <div id="individual" class="tab-content active">
+            <div class="investigation-panel">
+                <h2>🔍 Investiguer un Suspect</h2>
+                <form id="investigationForm">
+                    <div class="form-group">
+                        <label for="suspect">Suspect à investiguer:</label>
+                        <select class="form-control" id="suspect" required>
+                            <option value="">-- Sélectionner un suspect --</option>
+                            <option value="john">John</option>
+                            <option value="mary">Mary</option>
+                            <option value="alice">Alice</option>
+                            <option value="bruno">Bruno</option>
+                            <option value="sophie">Sophie</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="crimeType">Type de crime:</label>
+                        <select class="form-control" id="crimeType" required>
+                            <option value="">-- Sélectionner un type de crime --</option>
+                            <option value="vol">Vol</option>
+                            <option value="assassinat">Assassinat</option>
+                            <option value="escroquerie">Escroquerie</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn">Lancer l'Enquête</button>
+                </form>
+            </div>
+
+            <div class="results-section">
+                <div id="investigationResults">
+                    <p style="text-align: center; color: #666; font-style: italic;">
+                        Sélectionnez un suspect et un type de crime pour commencer l'investigation...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div id="overview" class="tab-content">
+            <div class="investigation-panel">
+                <h2>📊 Vue d'Ensemble par Type de Crime</h2>
+                <div style="text-align: center;">
+                    <button class="btn" onclick="getAllGuilty('vol')">Coupables de Vol</button>
+                    <button class="btn" onclick="getAllGuilty('assassinat')">Coupables d'Assassinat</button>
+                    <button class="btn btn-secondary" onclick="getAllGuilty('escroquerie')">Coupables d'Escroquerie</button>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <div id="overviewResults">
+                    <p style="text-align: center; color: #666; font-style: italic;">
+                        Cliquez sur un bouton ci-dessus pour voir tous les suspects coupables d'un type de crime...
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Remove active class from all tabs and content
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            // Add active class to selected tab and content
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // Individual investigation form handler
+        document.getElementById('investigationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const suspect = document.getElementById('suspect').value;
+            const crimeType = document.getElementById('crimeType').value;
+            const resultsDiv = document.getElementById('investigationResults');
+            
+            if (!suspect || !crimeType) {
+                showError('Veuillez sélectionner un suspect et un type de crime.');
+                return;
+            }
+            
+            resultsDiv.innerHTML = '<div class="loading">Investigation en cours...</div>';
+            
+            try {
+                // Simulate API call since we're in a static environment
+                const result = await simulateInvestigation(suspect, crimeType);
+                displayInvestigationResult(result, resultsDiv);
+            } catch (error) {
+                resultsDiv.innerHTML = '<div class="error">Erreur lors de l\'investigation: ' + error.message + '</div>';
+            }
+        });
+
+        // Simulate the Flask API investigation
+        async function simulateInvestigation(suspect, crimeType) {
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            const guilty = checkGuilty(suspect, crimeType);
+            const evidence = getEvidence(suspect, crimeType);
+            
+            return {
+                success: true,
+                guilty: guilty,
+                evidence: evidence,
+                suspect: suspect.charAt(0).toUpperCase() + suspect.slice(1),
+                crime_type: crimeType.charAt(0).toUpperCase() + crimeType.slice(1)
+            };
+        }
+
+        // Logic simulation based on PROLOG rules
+        function checkGuilty(suspect, crimeType) {
+            const guiltyMap = {
+                'john_vol': true,
+                'mary_assassinat': true,
+                'alice_escroquerie': true,
+                'sophie_escroquerie': true
+            };
+            
+            return guiltyMap[suspect + '_' + crimeType] || false;
+        }
+
+        function getEvidence(suspect, crimeType) {
+            const evidenceMap = {
+                'john_vol': ['Motif établi', 'Présent sur les lieux du crime', 'Empreintes sur l\'arme'],
+                'mary_assassinat': ['Motif établi', 'Présent sur les lieux du crime', 'Empreintes sur l\'arme', 'Identification par témoin oculaire'],
+                'alice_escroquerie': ['Motif établi', 'Transactions bancaires suspectes'],
+                'sophie_escroquerie': ['Fausse identité découverte'],
+                'bruno_escroquerie': ['Transactions bancaires suspectes'] // Bruno has evidence but no motive, so not guilty
+            };
+            
+            return evidenceMap[suspect + '_' + crimeType] || [];
+        }
+
+        function displayInvestigationResult(result, container) {
+            const cardClass = result.guilty ? 'guilty' : 'innocent';
+            const status = result.guilty ? 'COUPABLE' : 'INNOCENT';
+            const statusIcon = result.guilty ? '⚖️' : '✅';
+            
+            let evidenceHtml = '';
+            if (result.evidence && result.evidence.length > 0) {
+                evidenceHtml = `
+                    <div style="margin-top: 15px;">
+                        <strong>Preuves à charge:</strong>
+                        <ul class="evidence-list">
+                            ${result.evidence.map(evidence => `<li>${evidence}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = `
+                <div class="result-card ${cardClass}">
+                    <div class="result-title">
+                        ${statusIcon} ${result.suspect} - ${status}
+                    </div>
+                    <p><strong>Crime:</strong> ${result.crime_type}</p>
+                    ${evidenceHtml}
+                    ${!result.guilty ? '<p style="margin-top: 15px;"><em>Aucune preuve suffisante pour établir la culpabilité.</em></p>' : ''}
+                </div>
+            `;
+        }
+
+        // Overview functionality
+        async function getAllGuilty(crimeType) {
+            const resultsDiv = document.getElementById('overviewResults');
+            resultsDiv.innerHTML = '<div class="loading">Recherche des suspects coupables...</div>';
+            
+            try {
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                const guiltyList = getGuiltyForCrime(crimeType);
+                displayOverviewResults(crimeType, guiltyList, resultsDiv);
+            } catch (error) {
+                resultsDiv.innerHTML = '<div class="error">Erreur lors de la recherche: ' + error.message + '</div>';
+            }
+        }
+
+        function getGuiltyForCrime(crimeType) {
+            const guiltyMap = {
+                'vol': ['John'],
+                'assassinat': ['Mary'],
+                'escroquerie': ['Alice', 'Sophie']
+            };
+            
+            return guiltyMap[crimeType] || [];
+        }
+
+        function displayOverviewResults(crimeType, guiltyList, container) {
+            const crimeDisplayName = {
+                'vol': 'Vol',
+                'assassinat': 'Assassinat', 
+                'escroquerie': 'Escroquerie'
+            }[crimeType];
+            
+            let content = `
+                <div class="result-card">
+                    <div class="result-title">
+                        📋 Suspects coupables de ${crimeDisplayName}
+                    </div>
+                    <p><strong>Nombre total:</strong> ${guiltyList.length}</p>
+                </div>
+            `;
+            
+            if (guiltyList.length > 0) {
+                content += '<div class="suspects-grid">';
+                guiltyList.forEach(suspect => {
+                    const evidence = getEvidence(suspect.toLowerCase(), crimeType);
+                    content += `
+                        <div class="suspect-card">
+                            <div class="suspect-name">👤 ${suspect}</div>
+                            <p style="color: #dc3545; font-weight: bold;">COUPABLE</p>
+                            ${evidence.length > 0 ? `
+                                <div style="margin-top: 10px; font-size: 0.9rem;">
+                                    <strong>Preuves:</strong><br>
+                                    ${evidence.slice(0, 2).join('<br>')}
+                                    ${evidence.length > 2 ? '<br>...' : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+                content += '</div>';
+            } else {
+                content += `
+                    <div style="text-align: center; padding: 20px; color: #666;">
+                        Aucun suspect coupable trouvé pour ce type de crime.
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = content;
+        }
+
+        function showError(message) {
+            const resultsDiv = document.getElementById('investigationResults');
+            resultsDiv.innerHTML = `<div class="error">${message}</div>`;
+        }
+
+        // Initialize the interface
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Police Investigation System loaded successfully!');
+        });
+    </script>
+</body>
+</html>
