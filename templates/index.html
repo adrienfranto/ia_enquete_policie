@@ -276,7 +276,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🕵️ Système d'Enquête Policière</h1>
+            <h1> Système d'Enquête Policière</h1>
             <p>Système intelligent basé sur PROLOG pour l'investigation criminelle</p>
         </div>
 
@@ -345,13 +345,13 @@
     </div>
 
     <script>
-        // Tab switching functionality
+        
         function switchTab(tabName) {
-            // Remove active class from all tabs and content
+        
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            // Add active class to selected tab and content
+           
             event.target.classList.add('active');
             document.getElementById(tabName).classList.add('active');
         }
